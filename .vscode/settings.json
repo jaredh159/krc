@@ -1,5 +1,13 @@
 {
   "files.exclude": {
     "**/*.out": true
+  },
+  "files.associations": {
+    "*.snap": "typescript",
+    "bitset": "c",
+    "functional": "c",
+    "optional": "c",
+    "string": "c",
+    "system_error": "c"
   }
 }
