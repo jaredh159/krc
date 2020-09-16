@@ -24,6 +24,7 @@ void setVariable(char, double);
 void ungetch(int);
 int peekch(void);
 void handle_special_op(char[]);
+void ungets(char[]);
 
 int main(void)
 {
@@ -31,6 +32,8 @@ int main(void)
   double op2;
   double temp;
   char s[MAXOP];
+
+  ungets("3 4 *");
 
   while ((type = getop(s)) != EOF)
   {
@@ -158,6 +161,14 @@ double peek(void)
     return 0.0;
   }
   return stack[stack_idx - 1];
+}
+
+void ungets(char s[])
+{
+  int i = strlen(s) - 1;
+  ungetch(EOF);
+  for (; i >= 0; i--)
+    ungetch(s[i]);
 }
 
 double variable_map[27];
