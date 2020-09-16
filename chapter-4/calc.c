@@ -7,14 +7,20 @@
 #define MAXOP 100
 #define NUMBER '0'
 #define SPECIALOP '1'
+#define VARIABLE_SET '2'
+#define VARIABLE_GET '3'
 
 int is_special_op_start(int);
+int is_variable(int);
 int getop(char[]);
 void push(double);
 double pop(void);
 double peek(void);
 void clear(void);
 int getch(void);
+int hasVariable(char);
+double getVariable(char);
+void setVariable(char, double);
 void ungetch(int);
 int peekch(void);
 void handle_special_op(char[]);
@@ -30,12 +36,20 @@ int main(void)
   {
     switch (type)
     {
+    case VARIABLE_GET:
+      push(getVariable(s[0]));
+      break;
+    case VARIABLE_SET:
+      temp = pop();
+      setVariable(s[0], temp);
+      break;
     case NUMBER:
       push(atof(s));
       break;
     case SPECIALOP:
       handle_special_op(s);
       break;
+
     case '^':
       handle_special_op("pow");
       break;
@@ -64,13 +78,18 @@ int main(void)
       }
       break;
     case '\n':
-      printf("\t%.8g\n", pop());
+      temp = pop();
+      setVariable('L', temp);
+      printf("\t%.8g\n", temp);
       break;
     default:
       printf("error: unknown command %s\n", s);
       return 1;
     }
   }
+  temp = pop();
+  setVariable('L', temp);
+  printf("\t%.8g\n", temp);
   return 0;
 }
 
@@ -141,14 +160,67 @@ double peek(void)
   return stack[stack_idx - 1];
 }
 
+double variable_map[27];
+int variable_map_flags[27];
+
+int variable_index(char v)
+{
+  if (v == 'L')
+  {
+    return 26;
+  }
+  return v - 'a';
+}
+
+int hasVariable(char v)
+{
+  return variable_map_flags[variable_index(v)] == 1;
+}
+
+void setVariable(char v, double num)
+{
+  int index = variable_index(v);
+  variable_map[index] = num;
+  variable_map_flags[index] = 1;
+}
+
+double getVariable(char v)
+{
+  return variable_map[variable_index(v)];
+}
+
+int is_variable(int c)
+{
+  return (islower(c) || c == 'L') && peekch() == ' ';
+}
+
 int getop(char s[])
 {
-  int i, c, next;
+  int i, c, next, third;
   int type = NUMBER;
   while ((s[0] = c = getch()) == ' ' || c == '\t')
     ;
 
   s[1] = '\0';
+
+  if (is_variable(c))
+  {
+    if (hasVariable(c))
+    {
+      return VARIABLE_GET;
+    }
+    else
+    {
+      next = getch();
+      third = getch();
+      if (next != ' ' || third != '=')
+      {
+        printf("Invalid syntax for setting variable\n");
+        return 0;
+      }
+      return VARIABLE_SET;
+    }
+  }
 
   if (!isdigit(c) && c != '.' && c != '-' && !is_special_op_start(c))
     return c;
@@ -226,3 +298,11 @@ int is_special_op_start(int c)
   next = peekch();
   return (isalpha(next) && next == tolower(next));
 }
+
+// y = 3
+// y 3 =
+// 3 y = 5 y + => 8
+
+// if (is_alpha)
+// in map? push value from map
+// not in map? read forward and consume =
