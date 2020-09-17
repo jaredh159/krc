@@ -33,7 +33,7 @@ int main(void)
   double temp;
   char s[MAXOP];
 
-  ungets("3 4 *");
+  /* ungets("3 4 *"); */
 
   while ((type = getop(s)) != EOF)
   {
@@ -90,9 +90,9 @@ int main(void)
       return 1;
     }
   }
-  temp = pop();
-  setVariable('L', temp);
-  printf("\t%.8g\n", temp);
+  // temp = pop();
+  // setVariable('L', temp);
+  // printf("\t%.8g\n", temp);
   return 0;
 }
 
@@ -276,7 +276,7 @@ int getop(char s[])
 
 #define BUFSIZE 100
 
-char charbuffer[BUFSIZE];
+int charbuffer[BUFSIZE];
 int charbuffer_idx = 0;
 
 int getch(void)
