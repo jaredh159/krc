@@ -33,7 +33,7 @@ int main(void)
   double temp;
   char s[MAXOP];
 
-  // ungets("3 4 *");
+  ungets("3 4 *");
 
   while ((type = getop(s)) != EOF)
   {
@@ -90,9 +90,9 @@ int main(void)
       return 1;
     }
   }
-  // temp = pop();
-  // setVariable('L', temp);
-  // printf("\t%.8g\n", temp);
+  temp = pop();
+  setVariable('L', temp);
+  printf("\t%.8g\n", temp);
   return 0;
 }
 
@@ -276,35 +276,20 @@ int getop(char s[])
 
 #define BUFSIZE 100
 
-// char charbuffer[BUFSIZE];
-// int charbuffer_idx = 0;
-
-int charbuffer = EOF;
+char charbuffer[BUFSIZE];
+int charbuffer_idx = 0;
 
 int getch(void)
 {
-  int frombuffer;
-
-  if (charbuffer == EOF)
-  {
-    return getchar();
-  }
-
-  frombuffer = charbuffer;
-  charbuffer = EOF;
-  return frombuffer;
-  // return (charbuffer_idx > 0) ? charbuffer[--charbuffer_idx] : getchar();
+  return (charbuffer_idx > 0) ? charbuffer[--charbuffer_idx] : getchar();
 }
 
 void ungetch(int c)
 {
-  if (charbuffer != EOF)
+  if (charbuffer_idx >= BUFSIZE)
     printf("ungetch: too many characters\n");
-  charbuffer = c;
-  // if (charbuffer_idx >= BUFSIZE)
-  //   printf("ungetch: too many characters\n");
-  // else
-  //   charbuffer[charbuffer_idx++] = c;
+  else
+    charbuffer[charbuffer_idx++] = c;
 }
 
 int peekch(void)
