@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <string.h>
 
 #define MAXOP 100
 #define NUMBER '0'
@@ -10,6 +11,7 @@ void push(double);
 double pop(void);
 int getch(void);
 void ungetch(int);
+int getline_(char s[], int lim);
 
 int main(void)
 {
@@ -80,10 +82,27 @@ double pop(void)
   return 0.0;
 }
 
+char line[MAXVAL];
+int line_position = 0;
+
 int getop(char s[])
 {
+  if (line_position == 0 || line_position == (strlen(line) - 1))
+  {
+    int linelen = getline_(line, MAXVAL);
+    if (linelen == 0)
+      return EOF;
+    line_position = 0;
+  }
+
+  /*  
+  do we have a line? if not get one
+  still no line? return EOF
+
+  
+  */
   int i, c, next;
-  while ((s[0] = c = getch()) == ' ' || c == '\t')
+  while (line_position < strlen(line) && ((s[0] = c = getch()) == ' ' || c == '\t'))
     ;
 
   s[1] = '\0';
@@ -130,13 +149,31 @@ int bufp = 0;
 
 int getch(void)
 {
-  return (bufp > 0) ? buf[--bufp] : getchar();
+  return line[++line_position];
+  // return (bufp > 0) ? buf[--bufp] : getchar();
 }
 
 void ungetch(int c)
 {
-  if (bufp >= BUFSIZE)
-    printf("ungetch: too many characters\n");
-  else
-    buf[bufp++] = c;
+  line_position--;
+  // if (bufp >= BUFSIZE)
+  //   printf("ungetch: too many characters\n");
+  // else
+  //   buf[bufp++] = c;
+}
+
+int getline_(char s[], int lim)
+{
+  int c, i;
+  for (i = 0; i < lim - 1 && (c = getchar()) != EOF && c != '\n'; ++i)
+    s[i] = c;
+
+  if (c == '\n')
+  {
+    s[i] = c;
+    ++i;
+  }
+
+  s[i] = '\0';
+  return i;
 }
