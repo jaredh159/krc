@@ -149,7 +149,7 @@ int bufp = 0;
 
 int getch(void)
 {
-  return line[++line_position];
+  return line[line_position++];
   // return (bufp > 0) ? buf[--bufp] : getchar();
 }
 
