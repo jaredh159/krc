@@ -143,30 +143,32 @@ double peek(void)
 
 int getop(char s[])
 {
-  int i, c, next;
+  static int c = ' ';
+  int i, next;
   int type = NUMBER;
-  while ((s[0] = c = getch()) == ' ' || c == '\t')
-    ;
+  while (c == ' ' || c == '\t')
+  {
+    c = getch();
+    s[0] = c;
+  }
 
   s[1] = '\0';
 
   if (!isdigit(c) && c != '.' && c != '-' && !is_special_op_start(c))
-    return c;
+  {
+    next = c;
+    c = getch();
+    return next;
+  }
 
   i = 0;
   if (c == '-')
   {
     c = getch();
     if (!isdigit(c) && c != '.')
-    {
-      if (c != EOF)
-        ungetch(c);
       return '-';
-    }
     else
-    {
       s[++i] = c;
-    }
   }
 
   if (is_special_op_start(c))
@@ -185,9 +187,6 @@ int getop(char s[])
       ;
 
   s[i] = '\0';
-  if (c != EOF)
-    ungetch(c);
-
   return type;
 }
 
