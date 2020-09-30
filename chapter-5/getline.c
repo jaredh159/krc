@@ -12,13 +12,14 @@ int getline_(char *s, int lim)
   return i;
 }
 
-int main(void)
-{
-  char str[MAXLINE];
-  int len;
+// int main_(void)
+// {
+//   char str[MAXLINE];
+//   int len;
 
-  while ((len = getline_(str, MAXLINE)))
-  {
-    printf("len: %d, line: %s\n", len, str);
-  }
-}
+//   while ((len = getline_(str, MAXLINE)))
+//   {
+//     printf("len: %d, line: %s\n", len, str);
+//   }
+//   return 0;
+// }
