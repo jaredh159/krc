@@ -3,18 +3,20 @@
 #include "alloc.c"
 #include "getline.c"
 
-#define MAXLINES 5000
+#define MAXLINES 50
+#define MAXLEN 20
 
 char *lineptr[MAXLINES]; /* pointers to text lines */
 
-int readlines(char *lineptr[], int nlines);
+int readlines(char *lineptr[], char *storage, int nlines);
 void writelines(char *lineptr[], int nlines);
 void qsort(char *lineptr[], int left, int right);
 
 int main(void)
 {
+  char storage[MAXLINES * MAXLEN];
   int nlines; /* number of input lines read */
-  if ((nlines = readlines(lineptr, MAXLINES)) >= 0)
+  if ((nlines = readlines(lineptr, storage, MAXLINES)) >= 0)
   {
     qsort(lineptr, 0, nlines - 1);
     writelines(lineptr, nlines);
@@ -27,24 +29,25 @@ int main(void)
   }
 }
 
-#define MAXLEN 1000 /* max length of any input line */
 extern int getline_(char *, int);
 extern char *alloc(int);
 
-int readlines(char *l_lineptr[], int maxlines)
+int readlines(char *l_lineptr[], char *storage, int maxlines)
 {
   int len, nlines;
-  char *p, line[MAXLEN];
+  char line[MAXLEN];
+  char *p = storage;
 
   nlines = 0;
   while ((len = getline_(line, MAXLEN)) > 0)
-    if (nlines >= maxlines || (p = alloc(len + 1)) == NULL)
+    if (nlines >= maxlines || (p > (storage + MAXLINES * MAXLEN - len)))
       return -1;
     else
     {
       line[len] = '\0'; /* delete newline */
       strcpy(p, line);
       l_lineptr[nlines++] = p;
+      p += len + 1;
     }
   return nlines;
 }
