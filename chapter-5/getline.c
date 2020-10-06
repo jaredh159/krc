@@ -11,15 +11,3 @@ int getline_(char *s, int lim)
   *s = '\0';
   return i;
 }
-
-// int main_(void)
-// {
-//   char str[MAXLINE];
-//   int len;
-
-//   while ((len = getline_(str, MAXLINE)))
-//   {
-//     printf("len: %d, line: %s\n", len, str);
-//   }
-//   return 0;
-// }
