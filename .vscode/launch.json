@@ -5,6 +5,15 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "CodeLLDB",
+      "type": "lldb",
+      "request": "launch",
+      "program": "${fileDirname}/${fileBasenameNoExtension}",
+      "args": ["2", "4", "6"],
+      "cwd": "${workspaceFolder}",
+      "preLaunchTask": "C/C++: clang build active file"
+    },
+    {
       "name": "clang - Build and debug active file",
       "type": "cppdbg",
       "request": "launch",
