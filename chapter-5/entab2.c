@@ -6,7 +6,6 @@
 #define MAX_LINE_LENGTH 100
 #define MAX_NUM_LINES 100
 
-// extern int getline_(char *s, int lim);
 extern struct TabArgs get_tab_args(int argc, char *argv[]);
 
 /* entab -m +n -- "stop every n columns, starting at column m" */

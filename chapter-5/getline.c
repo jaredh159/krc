@@ -17,8 +17,13 @@ int getline_debug(char *s, int lim)
   static int called = 0;
   if (called)
     return 0;
-  char *debug_line = ".........foobar";
+  char *debug_line = "^^Foobar";
   strcpy(s, debug_line);
   called = 1;
   return strlen(debug_line);
 }
+/* 
+^Hi^There
+0123456789
+•••Hi
+ */
