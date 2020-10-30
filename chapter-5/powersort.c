@@ -9,7 +9,7 @@ char *lineptr[MAXLINES]; /* pointers to text lines */
 
 int readlines(char *lineptr[], char *storage, int nlines);
 void writelines(char *lineptr[], int nlines);
-void qsort(char *lineptr[], int left, int right);
+void qsort(void *lineptr[], int left, int right, int (*comp)(void *, void *));
 
 int main(void)
 {
@@ -17,7 +17,7 @@ int main(void)
   int nlines; /* number of input lines read */
   if ((nlines = readlines(lineptr, storage, MAXLINES)) >= 0)
   {
-    qsort(lineptr, 0, nlines - 1);
+    qsort((void **)lineptr, 0, nlines - 1, (int (*)(void *, void *))(strcmp));
     writelines(lineptr, nlines);
     return 0;
   }
@@ -56,10 +56,10 @@ void writelines(char *lineptr[], int nlines)
     printf("%s\n", *lineptr++);
 }
 
-void qsort(char *v[], int left, int right)
+void qsort(void *v[], int left, int right, int (*comp)(void *, void *))
 {
   int i, last;
-  void swap(char *v[], int i, int j);
+  void swap(void *v[], int i, int j);
 
   if (left >= right) /* do nothing if array contains */
     return;          /* fewer than two elements */
@@ -68,14 +68,14 @@ void qsort(char *v[], int left, int right)
   last = left;
 
   for (i = left + 1; i <= right; i++)
-    if (strcmp(v[i], v[left]) < 0)
+    if ((*comp)(v[i], v[left]) < 0)
       swap(v, ++last, i);
   swap(v, left, last);
-  qsort(v, left, last - 1);
-  qsort(v, last + 1, right);
+  qsort(v, left, last - 1, comp);
+  qsort(v, last + 1, right, comp);
 }
 
-void swap(char *v[], int i, int j)
+void swap(void *v[], int i, int j)
 {
   char *temp;
   temp = v[i];
