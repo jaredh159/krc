@@ -14,16 +14,13 @@ int getline_(char *s, int lim)
 
 int getline_debug(char *s, int lim)
 {
-  static int called = 0;
-  if (called)
+  static int current_index = 0;
+  char *lines[] = {"Zoo", "Abcs", "Lol"};
+  if (current_index > 2)
+  {
     return 0;
-  char *debug_line = "^^Foobar";
+  }
+  char *debug_line = lines[current_index++];
   strcpy(s, debug_line);
-  called = 1;
   return strlen(debug_line);
 }
-/* 
-^Hi^There
-0123456789
-•••Hi
- */
