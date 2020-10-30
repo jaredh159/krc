@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include "getline.c"
 
 #define MAXLINES 50
@@ -9,15 +10,20 @@ char *lineptr[MAXLINES]; /* pointers to text lines */
 
 int readlines(char *lineptr[], char *storage, int nlines);
 void writelines(char *lineptr[], int nlines);
-void qsort(void *lineptr[], int left, int right, int (*comp)(void *, void *));
+void qsort_(void *lineptr[], int left, int right, int (*comp)(void *, void *));
+int numcmp(const char *, const char *);
 
-int main(void)
+int main(int argc, char *argv[])
 {
+  int numeric = 0;
+  if (argc > 1 && strcmp(argv[1], "-n") == 0)
+    numeric = 1;
+
   char storage[MAXLINES * MAXLEN];
   int nlines; /* number of input lines read */
   if ((nlines = readlines(lineptr, storage, MAXLINES)) >= 0)
   {
-    qsort((void **)lineptr, 0, nlines - 1, (int (*)(void *, void *))(strcmp));
+    qsort_((void **)lineptr, 0, nlines - 1, (int (*)(void *, void *))(numeric ? numcmp : strcmp));
     writelines(lineptr, nlines);
     return 0;
   }
@@ -56,7 +62,7 @@ void writelines(char *lineptr[], int nlines)
     printf("%s\n", *lineptr++);
 }
 
-void qsort(void *v[], int left, int right, int (*comp)(void *, void *))
+void qsort_(void *v[], int left, int right, int (*comp)(void *, void *))
 {
   int i, last;
   void swap(void *v[], int i, int j);
@@ -71,8 +77,8 @@ void qsort(void *v[], int left, int right, int (*comp)(void *, void *))
     if ((*comp)(v[i], v[left]) < 0)
       swap(v, ++last, i);
   swap(v, left, last);
-  qsort(v, left, last - 1, comp);
-  qsort(v, last + 1, right, comp);
+  qsort_(v, left, last - 1, comp);
+  qsort_(v, last + 1, right, comp);
 }
 
 void swap(void *v[], int i, int j)
@@ -81,4 +87,17 @@ void swap(void *v[], int i, int j)
   temp = v[i];
   v[i] = v[j];
   v[j] = temp;
+}
+
+int numcmp(const char *s1, const char *s2)
+{
+  double v1, v2;
+  v1 = atof(s1);
+  v2 = atof(s2);
+  if (v1 < v2)
+    return -1;
+  else if (v1 > v2)
+    return 1;
+  else
+    return 0;
 }

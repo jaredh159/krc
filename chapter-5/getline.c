@@ -15,7 +15,8 @@ int getline_(char *s, int lim)
 int getline_debug(char *s, int lim)
 {
   static int current_index = 0;
-  char *lines[] = {"Zoo", "Abcs", "Lol"};
+  // char *lines[] = {"Zoo", "Abcs", "Lol"};
+  char *lines[] = {"10", "1", "3"};
   if (current_index > 2)
   {
     return 0;
