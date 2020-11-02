@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "getline.c"
+#include "argv.c"
 
 #define MAXLINES 50
 #define MAXLEN 20
@@ -9,22 +10,21 @@
 char *lineptr[MAXLINES]; /* pointers to text lines */
 
 int readlines(char *lineptr[], char *storage, int nlines);
-void writelines(char *lineptr[], int nlines);
+void writelines(char *lineptr[], int nlines, int reversed);
 void qsort_(void *lineptr[], int left, int right, int (*comp)(void *, void *));
 int numcmp(const char *, const char *);
 
 int main(int argc, char *argv[])
 {
-  int numeric = 0;
-  if (argc > 1 && strcmp(argv[1], "-n") == 0)
-    numeric = 1;
+  int numeric = argv_idx("-n", argc, argv) != -1;
+  int reversed = argv_idx("-r", argc, argv) != -1;
 
   char storage[MAXLINES * MAXLEN];
   int nlines; /* number of input lines read */
   if ((nlines = readlines(lineptr, storage, MAXLINES)) >= 0)
   {
     qsort_((void **)lineptr, 0, nlines - 1, (int (*)(void *, void *))(numeric ? numcmp : strcmp));
-    writelines(lineptr, nlines);
+    writelines(lineptr, nlines, reversed);
     return 0;
   }
   else
@@ -56,8 +56,14 @@ int readlines(char *l_lineptr[], char *storage, int maxlines)
   return nlines;
 }
 
-void writelines(char *lineptr[], int nlines)
+void writelines(char *lineptr[], int nlines, int reversed)
 {
+  if (reversed)
+  {
+    while (nlines-- > 0)
+      printf("%s\n", *(lineptr + nlines));
+    return;
+  }
   while (nlines-- > 0)
     printf("%s\n", *lineptr++);
 }
