@@ -7,3 +7,9 @@ int str_is_int(char *str)
       return 0;
   return 1;
 }
+
+void str_to_lower(char *str)
+{
+  for (int i = 0, len = strlen(str); i < len; i++)
+    str[i] = tolower(str[i]);
+}

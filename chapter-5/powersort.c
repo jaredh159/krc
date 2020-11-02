@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include "getline.c"
 #include "argv.c"
+#include "strutils.c"
 
 #define MAXLINES 50
 #define MAXLEN 20
@@ -91,8 +92,21 @@ void qsort_(void *v[], int left, int right, int (*comp)(void *, void *))
   last = left;
 
   for (i = left + 1; i <= right; i++)
-    if ((*comp)(v[i], v[left]) < 0)
+  {
+    char *s1 = malloc(strlen(v[i]) + 1);
+    char *s2 = malloc(strlen(v[left]) + 1);
+    strcpy(s1, v[i]);
+    strcpy(s2, v[left]);
+    if (opts.folded)
+    {
+      str_to_lower(s1);
+      str_to_lower(s2);
+    }
+    if ((*comp)(s1, s2) < 0)
       swap(v, ++last, i);
+    free(s1);
+    free(s2);
+  }
   swap(v, left, last);
   qsort_(v, left, last - 1, comp);
   qsort_(v, last + 1, right, comp);
