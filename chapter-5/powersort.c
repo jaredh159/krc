@@ -10,21 +10,32 @@
 char *lineptr[MAXLINES]; /* pointers to text lines */
 
 int readlines(char *lineptr[], char *storage, int nlines);
-void writelines(char *lineptr[], int nlines, int reversed);
+void writelines(char *lineptr[], int nlines);
 void qsort_(void *lineptr[], int left, int right, int (*comp)(void *, void *));
 int numcmp(const char *, const char *);
 
+struct Opts
+{
+  int numeric;
+  int reversed;
+  int folded;
+};
+
+static struct Opts opts = {0, 0, 0};
+
 int main(int argc, char *argv[])
 {
-  int numeric = argv_idx("-n", argc, argv) != -1;
-  int reversed = argv_idx("-r", argc, argv) != -1;
+
+  opts.numeric = argv_has_flag('n', argc, argv);
+  opts.reversed = argv_has_flag('r', argc, argv);
+  opts.folded = argv_has_flag('f', argc, argv);
 
   char storage[MAXLINES * MAXLEN];
   int nlines; /* number of input lines read */
   if ((nlines = readlines(lineptr, storage, MAXLINES)) >= 0)
   {
-    qsort_((void **)lineptr, 0, nlines - 1, (int (*)(void *, void *))(numeric ? numcmp : strcmp));
-    writelines(lineptr, nlines, reversed);
+    qsort_((void **)lineptr, 0, nlines - 1, (int (*)(void *, void *))(opts.numeric ? numcmp : strcmp));
+    writelines(lineptr, nlines);
     return 0;
   }
   else
@@ -56,9 +67,9 @@ int readlines(char *l_lineptr[], char *storage, int maxlines)
   return nlines;
 }
 
-void writelines(char *lineptr[], int nlines, int reversed)
+void writelines(char *lineptr[], int nlines)
 {
-  if (reversed)
+  if (opts.reversed)
   {
     while (nlines-- > 0)
       printf("%s\n", *(lineptr + nlines));
