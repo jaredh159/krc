@@ -9,7 +9,7 @@
       "type": "lldb",
       "request": "launch",
       "program": "${fileDirname}/${fileBasenameNoExtension}",
-      "args": ["+2", "-3"],
+      "args": ["-d"],
       "cwd": "${workspaceFolder}",
       "preLaunchTask": "C/C++: clang build active file"
     },

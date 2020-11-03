@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <ctype.h>
 #include "getline.c"
 #include "argv.c"
 #include "strutils.c"
@@ -14,15 +15,17 @@ int readlines(char *lineptr[], char *storage, int nlines);
 void writelines(char *lineptr[], int nlines);
 void qsort_(void *lineptr[], int left, int right, int (*comp)(void *, void *));
 int numcmp(const char *, const char *);
+void str_to_dir_order(char *);
 
 struct Opts
 {
   int numeric;
   int reversed;
   int folded;
+  int dir_ordered;
 };
 
-static struct Opts opts = {0, 0, 0};
+static struct Opts opts = {0, 0, 0, 0};
 
 int main(int argc, char *argv[])
 {
@@ -30,6 +33,7 @@ int main(int argc, char *argv[])
   opts.numeric = argv_has_flag('n', argc, argv);
   opts.reversed = argv_has_flag('r', argc, argv);
   opts.folded = argv_has_flag('f', argc, argv);
+  opts.dir_ordered = argv_has_flag('d', argc, argv);
 
   char storage[MAXLINES * MAXLEN];
   int nlines; /* number of input lines read */
@@ -55,7 +59,7 @@ int readlines(char *l_lineptr[], char *storage, int maxlines)
   char *p = storage;
 
   nlines = 0;
-  while ((len = getline_debug(line, MAXLEN)) > 0)
+  while ((len = getline_(line, MAXLEN)) > 0)
     if (nlines >= maxlines || (p > (storage + MAXLINES * MAXLEN - len)))
       return -1;
     else
@@ -102,6 +106,11 @@ void qsort_(void *v[], int left, int right, int (*comp)(void *, void *))
       str_to_lower(s1);
       str_to_lower(s2);
     }
+    else if (opts.dir_ordered)
+    {
+      str_to_dir_order(s1);
+      str_to_dir_order(s2);
+    }
     if ((*comp)(s1, s2) < 0)
       swap(v, ++last, i);
     free(s1);
@@ -131,4 +140,15 @@ int numcmp(const char *s1, const char *s2)
     return 1;
   else
     return 0;
+}
+
+void str_to_dir_order(char *str)
+{
+  int i;
+  int j;
+  int len;
+  for (i = 0, j = 0, len = strlen(str); i < len; i++)
+    if (isalnum(str[i]) || str[i] == ' ')
+      str[j++] = str[i];
+  str[j] = '\0';
 }
