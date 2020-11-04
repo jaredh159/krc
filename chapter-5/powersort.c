@@ -4,7 +4,6 @@
 #include <ctype.h>
 #include "getline.c"
 #include "argv.c"
-#include "strutils.c"
 
 #define MAXLINES 50
 #define MAXLEN 20
@@ -16,6 +15,7 @@ void writelines(char *lineptr[], int nlines);
 void qsort_(void *lineptr[], int left, int right, int (*comp)(void *, void *));
 int numcmp(const char *, const char *);
 void str_to_dir_order(char *);
+void field_substr(char *);
 
 struct Opts
 {
@@ -23,17 +23,18 @@ struct Opts
   int reversed;
   int folded;
   int dir_ordered;
+  int field_index;
 };
 
-static struct Opts opts = {0, 0, 0, 0};
+static struct Opts opts = {0, 0, 0, 0, -1};
 
 int main(int argc, char *argv[])
 {
-
   opts.numeric = argv_has_flag('n', argc, argv);
   opts.reversed = argv_has_flag('r', argc, argv);
   opts.folded = argv_has_flag('f', argc, argv);
   opts.dir_ordered = argv_has_flag('d', argc, argv);
+  opts.field_index = argv_int_opt('+', argc, argv);
 
   char storage[MAXLINES * MAXLEN];
   int nlines; /* number of input lines read */
@@ -101,16 +102,25 @@ void qsort_(void *v[], int left, int right, int (*comp)(void *, void *))
     char *s2 = malloc(strlen(v[left]) + 1);
     strcpy(s1, v[i]);
     strcpy(s2, v[left]);
+
+    if (opts.field_index != -1)
+    {
+      field_substr(s1);
+      field_substr(s2);
+    }
+
     if (opts.folded)
     {
       str_to_lower(s1);
       str_to_lower(s2);
     }
-    else if (opts.dir_ordered)
+
+    if (opts.dir_ordered)
     {
       str_to_dir_order(s1);
       str_to_dir_order(s2);
     }
+
     if ((*comp)(s1, s2) < 0)
       swap(v, ++last, i);
     free(s1);
@@ -144,11 +154,27 @@ int numcmp(const char *s1, const char *s2)
 
 void str_to_dir_order(char *str)
 {
-  int i;
-  int j;
-  int len;
-  for (i = 0, j = 0, len = strlen(str); i < len; i++)
+  int i, j, len = strlen(str);
+  for (i = 0, j = 0; i < len; i++)
     if (isalnum(str[i]) || str[i] == ' ')
       str[j++] = str[i];
+  str[j] = '\0';
+}
+
+#define FIELD_SEP '|'
+
+void field_substr(char *str)
+{
+  int i, j, len = strlen(str);
+  int current_idx = 0;
+  for (i = 0, j = 0; i < len; i++)
+  {
+    if (str[i] == FIELD_SEP)
+      current_idx++;
+    else if (current_idx == opts.field_index)
+      str[j++] = str[i];
+    else if (current_idx > opts.field_index)
+      str[j++] = '\0';
+  }
   str[j] = '\0';
 }
