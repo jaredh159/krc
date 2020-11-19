@@ -2,7 +2,8 @@
 #include <string.h>
 
 static int debug_idx = 0;
-static char *debug_chars = "char (*(*x[3])())[5]\n";
+// static char *debug_chars = "char (*(*x[3])())[5]\n";
+static char *debug_chars = "#include <stdio.h> {\n";
 
 int getch(void)
 {
