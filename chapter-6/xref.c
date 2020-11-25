@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include "../utils/getline_debug.c"
 #include "../utils/strlist.c"
-#include "../chapter-5/strutils.c"
+#include "../utils/strutils.c"
 
 #define MAX_LINE_LENGTH 150
 #define MAX_OCCURRENCES 1000

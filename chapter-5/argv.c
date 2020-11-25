@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "strutils.c"
+#include "../utils/strutils.c"
 
 int argv_has_flag(char flag, int argc, char *argv[])
 {

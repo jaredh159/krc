@@ -1,5 +1,5 @@
 #include <stdlib.h>
-#include "strutils.c"
+#include "../utils/strutils.c"
 
 #define MAX_STOPS 10
 
