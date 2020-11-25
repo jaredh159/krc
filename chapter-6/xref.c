@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "../utils/getline.c"
+#include "../utils/getline_debug.c"
 #include "../utils/strlist.c"
 #include "../chapter-5/strutils.c"
 
@@ -18,21 +18,17 @@ typedef struct tnode
 
 tnode *record_occurrence(tnode *, char *, int);
 void print_refs(tnode *);
-void remove_non_alpha(char *);
-int is_not_noise_word(char *);
-int starts_alpha(char *);
 
 int main(void)
 {
   strlist *words;
-  strlist *start;
   tnode *refs = NULL;
   char line[MAX_LINE_LENGTH];
   int line_number = 1;
+
   while (getline_(line, MAX_LINE_LENGTH) != EOF)
   {
     words = whitespace_split(line);
-    start = words;
     words = filter_strlist(words, starts_alpha);
     mutate_strlist(words, str_to_lower);
     mutate_strlist(words, remove_non_alpha);
@@ -45,15 +41,6 @@ int main(void)
     line_number += 1;
   }
   print_refs(refs);
-}
-
-void remove_non_alpha(char *str)
-{
-  int j = 0;
-  for (int i = 0, len = strlen(str); i < len; i++)
-    if (isalpha(str[i]))
-      str[j++] = str[i];
-  str[j] = '\0';
 }
 
 void print_refs(tnode *p)
@@ -97,37 +84,4 @@ tnode *record_occurrence(tnode *pnode, char *str, int line_number)
   else
     pnode->right = record_occurrence(pnode->right, str, line_number);
   return pnode;
-}
-
-char *noise_words[] = {
-    "of",
-    "and",
-    "the",
-    "a",
-    "i",
-    "in",
-    "it",
-    "or",
-    "to",
-    "is",
-    "was",
-    "this",
-    "which",
-    "who",
-    "with",
-};
-
-#define NUM_NOISE_WORDS (sizeof noise_words / sizeof noise_words[0])
-
-int starts_alpha(char *word)
-{
-  return isalpha(*word);
-}
-
-int is_not_noise_word(char *word)
-{
-  for (int i = 0; i < NUM_NOISE_WORDS; i++)
-    if (strcmp(word, noise_words[i]) == 0)
-      return 0;
-  return 1;
 }

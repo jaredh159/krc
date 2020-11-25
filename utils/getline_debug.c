@@ -13,6 +13,7 @@ int getline_(char *s, int lim)
       "were it only for this reason, that I would do all that is justly in my power,",
       "to strengthen that affection which ought to subsist",
       "between persons so nearly united in nature",
+      "Foo bar foo",
       "EOF"};
   if (strcmp(lines[current_index], "EOF") == 0)
   {
