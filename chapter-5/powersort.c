@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include "getline.c"
-#include "argv.c"
+#include "../utils/argv.c"
 
 #define MAXLINES 50
 #define MAXLEN 20
