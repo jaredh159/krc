@@ -24,25 +24,9 @@ int consume_whitespace(int *, char *);
 int consume_comment(int *, char *);
 int consume_string(int *, char *);
 int consume_non_vars(int *, char *);
+void print_grps(grp_node *);
 grp_node *add_var(grp_node *, char *);
 int pref_len = 3;
-
-grp_node *add_var(grp_node *node, char *var)
-{
-  if (node == NULL)
-  {
-    node = malloc(sizeof(grp_node));
-    node->prefix = malloc(pref_len + 1);
-    strncpy(node->prefix, var, pref_len);
-    node->left = NULL;
-    node->right = NULL;
-    node->vars = malloc(sizeof(strlist));
-    node->vars->str = strdup(var);
-    node->vars->next = NULL;
-  }
-
-  return NULL;
-}
 
 /* write a program that reads a C program and prints in alphabetical order each group
    of variable names that are identical in the first 6 characters, but different
@@ -59,22 +43,36 @@ int main(int argc, char *argv[])
   if (user_length != -1)
     pref_len = user_length;
 
-  // int test_idx = 0;
-  // char *test = "#inc foob <rofl> { } lolbar";
-  // //            0123456789012345678
-  // i = 0;
-  // int ret = next_var(&i, test, var);
-  // printf("var: %s, return: %d, index: %d\n", var, ret, i);
-  // ret = next_var(&i, test, var);
-  // printf("var: %s, return: %d, index: %d\n", var, ret, i);
-  // return 0;
-
   while (getline_(line, MAX_LINE_LEN) != EOF)
   {
     idx = 0;
     while (next_var(&idx, line, var))
       grps = add_var(grps, var);
   }
+
+  print_grps(grps);
+}
+
+grp_node *add_var(grp_node *node, char *var)
+{
+  if (node == NULL)
+  {
+    node = malloc(sizeof(grp_node));
+    node->prefix = malloc(pref_len + 1);
+    strncpy(node->prefix, var, pref_len);
+    node->vars = malloc(sizeof(strlist));
+    node->vars->str = strdup(var);
+    return node;
+  }
+
+  int compare = strncmp(var, node->prefix, pref_len);
+  if (compare == 0)
+    node->vars = push_unique(node->vars, var);
+  else if (compare < 0)
+    node->left = add_var(node->left, var);
+  else
+    node->right = add_var(node->right, var);
+  return node;
 }
 
 int consume_skippable(int *idx, char *line)
@@ -95,9 +93,6 @@ int next_var(int *idx, char *line, char *word)
   consume_skippable(idx, line);
   if (*idx >= strlen(line) - 1)
     return 0;
-
-  if (line[*idx] == '*')
-    *idx += 1;
 
   int i = 0;
   while (!is_word_end(line[*idx]))
@@ -152,8 +147,17 @@ int consume_comment(int *idx, char *line)
 
 int consume_non_vars(int *idx, char *line)
 {
-  if (line[*idx] == '_' || isalpha(line[*idx]) || line[*idx] == '*')
+  if (line[*idx] == '_' || isalpha(line[*idx]))
     return 0;
+
+  if (line[*idx] == '*' || line[*idx] == '(')
+  {
+    if (line[*idx + 1] == '_' || isalpha(line[*idx + 1]))
+    {
+      *idx += 1;
+      return 0;
+    }
+  }
 
   *idx += 1;
   while (!is_word_end(line[*idx]))
@@ -215,4 +219,19 @@ int is_keyword(char *word)
     if (strcmp(word, keywords[i]) == 0)
       return 1;
   return 0;
+}
+
+void print_grps(grp_node *node)
+{
+  if (node == NULL)
+    return;
+  print_grps(node->left);
+  printf("group `%s`:\n", node->prefix);
+  strlist *word = node->vars;
+  while (word != NULL && word->str != NULL)
+  {
+    printf("  -> `%s`\n", word->str);
+    word = word->next;
+  }
+  print_grps(node->right);
 }

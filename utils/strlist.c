@@ -39,6 +39,25 @@ strlist *whitespace_split(char *line)
   return p_first;
 }
 
+strlist *push_unique(strlist *strs, char *word)
+{
+  if (strs == NULL)
+  {
+    strs = malloc(sizeof(strlist));
+    strs->str = strdup(word);
+    strs->next = NULL;
+  }
+  else if (strs->str == NULL)
+  {
+    strs->str = strdup(word);
+    strs->next = NULL;
+    return strs;
+  }
+  else if (strcmp(strs->str, word) != 0)
+    strs->next = push_unique(strs->next, word);
+  return strs;
+}
+
 void mutate_strlist(strlist *strs, void (*mutator)(char *))
 {
   while (strs->str != NULL)

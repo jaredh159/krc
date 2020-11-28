@@ -10,7 +10,7 @@ int getline_(char *s, int lim)
       "/* here is a comment yo */",
       "int lol = 6;",
       "char *test = \"roflcopter\"",
-      "if (foo_baz == 5)",
+      "if (foo_rofl == 5)",
       "{",
       "  foo_bar = 55;",
       "}",
