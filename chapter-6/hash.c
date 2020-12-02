@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include "../utils/getline_debug.c"
+#include "../utils/strlist.c"
 
 typedef struct nlist
 {
@@ -35,6 +37,8 @@ int undef(char *name)
     if (strcmp(current->name, name) == 0)
     {
       nlist *next = current->next;
+      free((void *)current->name);
+      free((void *)current->defn);
       free((void *)current);
       if (last == NULL)
         hashtab[hashed] = next;

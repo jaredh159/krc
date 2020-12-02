@@ -166,16 +166,6 @@ int consume_non_vars(int *idx, char *line)
   return 1;
 }
 
-int is_word_end(char c)
-{
-  return (is_whitespace(c) || c == '\0');
-}
-
-int is_whitespace(char c)
-{
-  return (c == ' ' || c == '\t');
-}
-
 static char *keywords[] = {
     "auto",
     "break",

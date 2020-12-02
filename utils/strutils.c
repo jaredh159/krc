@@ -23,6 +23,16 @@ void remove_non_alpha(char *str)
   str[j] = '\0';
 }
 
+int is_whitespace(char c)
+{
+  return (c == ' ' || c == '\t');
+}
+
+int is_word_end(char c)
+{
+  return (is_whitespace(c) || c == '\0');
+}
+
 static char *noise_words[] = {
     "of",
     "and",

@@ -4,6 +4,7 @@ typedef struct strlist
 {
   char *str;
   struct strlist *next;
+  int line_idx;
 } strlist;
 
 strlist *whitespace_split(char *line)
@@ -26,6 +27,7 @@ strlist *whitespace_split(char *line)
     if (j > 0)
     {
       int word_len = j + 1;
+      current->line_idx = index;
       current->str = malloc(word_len);
       for (k = 0; k < j; k++)
         current->str[k] = line[index + k];
@@ -83,4 +85,13 @@ void free_strlist(strlist *words)
     free(words);
     words = next;
   }
+}
+
+int strlist_len(strlist *words)
+{
+  int len = 0;
+  for (; words != NULL; words = words->next)
+    if (words->str != NULL)
+      len += 1;
+  return len;
 }
