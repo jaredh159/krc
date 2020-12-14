@@ -5,9 +5,7 @@ int getline_(char *s, int lim)
   static int current_index = 0;
   // char *lines[] = {"Zoo", "Abcs", "aBcs"};
   char *lines[] = {
-      "#undef ROFL",
-      "#define FOO 33",
-      "int x = FOO;",
+      "2 3 +",
       "EOF"};
   if (strcmp(lines[current_index], "EOF") == 0)
     return EOF;
