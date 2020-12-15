@@ -44,11 +44,15 @@ int main(int argc, char *argv[])
       printf("line %d does not match:\n", line_num);
       printf("  %15s -> %s", *(argv - 1), f1_line);
       printf("  %15s -> %s", *(argv - 0), f2_line);
+      fclose(file1);
+      fclose(file2);
       return 0;
     }
 
     line_num += 1;
   }
 
+  fclose(file1);
+  fclose(file2);
   return 0;
 }
