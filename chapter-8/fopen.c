@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <stdbool.h>
 // #include "syscalls.h"
 
 #undef NULL
@@ -118,10 +119,73 @@ int _fillbuf(FILE_ *fp)
   return (unsigned char)*fp->ptr++;
 }
 
+int _flushbuf(int c, FILE_ *fp)
+{
+  if (!fp->flag.write)
+    return EOF;
+
+  if (fp->base == NULL) /* no buffer yet */
+  {
+    fp->base = (char *)malloc(BUFSIZ);
+    if (fp->base == NULL)
+    {
+      fp->flag.err = 1;
+      return EOF;
+    }
+  }
+  else
+  {
+    int to_flush = BUFSIZ - fp->cnt;
+    int flushed;
+    flushed = write(fp->fd, fp->base, to_flush);
+    if (flushed != to_flush)
+    {
+      fp->flag.err = 1;
+      return EOF;
+    }
+  }
+
+  fp->ptr = fp->base;
+  fp->cnt = BUFSIZ;
+  *fp->ptr = c;
+  fp->ptr += 1;
+  fp->cnt -= 1;
+  return (unsigned char)c;
+}
+
+int fflush_(FILE_ *fp)
+{
+  int res;
+  if (fp->flag.write && fp->cnt > 0)
+    res = write(fp->fd, fp->base, BUFSIZ - fp->cnt);
+  fp->ptr = fp->base;
+  fp->cnt = BUFSIZ;
+  return (res == -1) ? EOF : res;
+}
+
+int fclose_(FILE_ *fp)
+{
+  fflush_(fp);
+  free(fp->base);
+  fp->flag.read = 0;
+  fp->flag.write = 0;
+  fp->base = NULL;
+  fp->ptr = NULL;
+  fp->cnt = 0;
+  close(fp->fd);
+  return 0;
+}
+
 int main(void)
 {
-  FILE_ *file = fopen_("cat.c", "r");
-  printf("%p\n", file);
-  printf("fd: %d\n", file->fd);
-  printf("%c\n", getc_(file));
+  FILE_ *file = fopen_("dest", "w");
+  putc_('h', file);
+  putc_('e', file);
+  putc_('l', file);
+  putc_('l', file);
+  putc_('o', file);
+  fclose_(file);
+  // printf("%p\n", file);
+  // printf("fd: %d\n", file->fd);
+  // printf("%c\n", getc_(file));
 }
