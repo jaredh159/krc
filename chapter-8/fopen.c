@@ -176,14 +176,43 @@ int fclose_(FILE_ *fp)
   return 0;
 }
 
+int fseek_(FILE_ *fp, long offset, int origin)
+{
+  long res;
+  res = lseek(fp->fd, offset, origin);
+  if (res == -1L)
+  {
+    fp->flag.err = 1;
+    return 1;
+  }
+  if (fp->flag.read)
+  {
+    free(fp->base);
+    fp->base = NULL;
+    fp->cnt = 0;
+    return 0;
+  }
+  else if (fp->flag.write)
+  {
+    if (fflush_(fp) == EOF)
+    {
+      fp->flag.err = 1;
+      return 1;
+    }
+    return 0;
+  }
+
+  return res != -1L;
+}
+
 int main(void)
 {
-  FILE_ *file = fopen_("dest", "w");
-  putc_('h', file);
-  putc_('e', file);
-  putc_('l', file);
-  putc_('l', file);
-  putc_('o', file);
+  FILE_ *file = fopen_("dest", "r");
+  printf("%c\n", getc_(file));
+  printf("%c\n", getc_(file));
+  fseek_(file, 10, 0);
+  printf("%c\n", getc_(file));
+  printf("%c\n", getc_(file));
   fclose_(file);
   // printf("%p\n", file);
   // printf("fd: %d\n", file->fd);
