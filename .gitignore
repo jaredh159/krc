@@ -2,3 +2,4 @@
 **/output.txt
 chapter-*/*
 !chapter-*/*.c
+!chapter-*/*.h
