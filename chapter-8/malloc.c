@@ -82,7 +82,7 @@ void free_(void *ap)
 
   if (bp->s.size < 1 || bp->s.size > MAX_ALLOWED_MEMORY)
   {
-    printf("error, unexpected size for block to free\n");
+    printf("error, unexpected size for block to free: %d\n", bp->s.size);
     return;
   }
 
@@ -106,6 +106,19 @@ void free_(void *ap)
   freep = p;
 }
 
+void bfree_(void *ap, unsigned num_bytes)
+{
+  if (num_bytes <= (sizeof(Header) + sizeof(Header)))
+    return;
+
+  Header *p;
+  p = (Header *)ap;
+  p->s.size = num_bytes / sizeof(Header);
+  printf("size is %lu, %d\n", sizeof(Header), p->s.size);
+  p->s.ptr = NULL;
+  free_(p + 1);
+}
+
 void *calloc_(unsigned int num_objects, unsigned int object_size)
 {
   unsigned int num_bytes = num_objects * object_size;
@@ -124,15 +137,18 @@ void *calloc_(unsigned int num_objects, unsigned int object_size)
   return pointer;
 }
 
+static char *string = "0123456789012345678901234567890123456789";
+
 int main(void)
 {
-  char *s1 = malloc_(5);
-  *s1 = 'H';
-  free_(s1);
-  char *str = calloc_(5, sizeof(char *));
-  // char *str = malloc_(5);
-  printf("pointer is %p\n", str);
-  printf("char %d is %d, or %c\n", 0, (int)str[0], str[0]);
-  free_(str);
+  // char *s1 = malloc_(5);
+  // *s1 = 'H';
+  // free_(s1);
+  // char *str = calloc_(5, sizeof(char *));
+  // // char *str = malloc_(5);
+  // printf("pointer is %p\n", str);
+  // printf("char %d is %d, or %c\n", 0, (int)str[0], str[0]);
+  // free_(str);
+  bfree_(&string, 40);
   return 0;
 }
