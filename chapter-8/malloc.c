@@ -18,6 +18,7 @@ typedef union header Header;
 static Header base;
 static Header *freep = NULL;
 #define NALLOC 1024
+#define MAX_ALLOWED_MEMORY 4096
 static Header *morecore_(unsigned);
 void free_(void *);
 
@@ -25,6 +26,9 @@ void *malloc_(unsigned nbytes)
 {
   Header *p, *prevp;
   unsigned nunits;
+
+  if (nbytes < 1 || nbytes > MAX_ALLOWED_MEMORY)
+    return NULL;
 
   nunits = (nbytes + sizeof(Header) - 1) / sizeof(Header) + 1;
   if ((prevp = freep) == NULL)
@@ -75,6 +79,13 @@ void free_(void *ap)
 {
   Header *bp, *p;
   bp = (Header *)ap - 1; /* point to block header */
+
+  if (bp->s.size < 1 || bp->s.size > MAX_ALLOWED_MEMORY)
+  {
+    printf("error, unexpected size for block to free\n");
+    return;
+  }
+
   for (p = freep; !(bp > p && bp < p->s.ptr); p = p->s.ptr)
     if (p >= p->s.ptr && (bp > p || bp < p->s.ptr))
       break; /* freed block at start or end of arena */
