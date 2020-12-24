@@ -20,23 +20,58 @@ void dirdcl(void);
 int gettoken(void);
 int tokentype;
 char token[MAXTOKEN];
+char buffered_token[MAXTOKEN];
+int buffered_tokentype;
+int buffered_gettoken_ret = -1;
 char name[MAXTOKEN];
 char datatype[MAXTOKEN];
 char out[1000];
+void consume_whitespace();
+int peek_token();
 
+/* undcl */
 int main(void)
 {
+  int type;
+  char temp[MAXTOKEN];
   while (gettoken() != EOF)
-  {                          /* 1st token on line */
-    strcpy(datatype, token); /* is the datatype */
-    out[0] = '\0';
-    dcl(); /* parse rest of line */
-    if (tokentype != '\n')
-      printf("syntax error\n");
-    printf("%s: %s %s\n", name, out, datatype);
+  {
+    strcpy(out, token);
+    while ((type = gettoken()) != '\n')
+      if (type == PARENS || type == BRACKETS)
+        strcat(out, token);
+      else if (type == '*')
+      {
+        int next_token_type = peek_token();
+        sprintf(temp, next_token_type != NAME ? "(*%s)" : "*%s", out);
+        strcpy(out, temp);
+      }
+      else if (type == NAME)
+      {
+        sprintf(temp, "%s %s", token, out);
+        strcpy(out, temp);
+      }
+      else
+        printf("invalid input at %s\n", token);
+    printf("%s\n", out);
   }
   return 0;
 }
+
+/* dcl */
+// int main(void)
+// {
+//   while (gettoken() != EOF)
+//   {                          /* 1st token on line */
+//     strcpy(datatype, token); /* is the datatype */
+//     out[0] = '\0';
+//     dcl(); /* parse rest of line */
+//     if (tokentype != '\n')
+//       printf("syntax error\n");
+//     printf("%s: %s %s\n", name, out, datatype);
+//   }
+//   return 0;
+// }
 
 /* dcl: parse a declarator */
 void dcl(void)
@@ -76,6 +111,15 @@ void dirdcl(void)
 
 int gettoken(void)
 {
+  if (buffered_gettoken_ret != -1)
+  {
+    strcpy(token, buffered_token);
+    tokentype = buffered_tokentype;
+    int return_val = buffered_gettoken_ret;
+    buffered_gettoken_ret = -1;
+    return return_val;
+  }
+
   int c;
   char *p = token;
   while ((c = getch()) == ' ' || c == '\t')
@@ -83,6 +127,7 @@ int gettoken(void)
 
   if (c == '(')
   {
+    consume_whitespace();
     if ((c = getch()) == ')')
     {
       strcpy(token, "()");
@@ -96,8 +141,13 @@ int gettoken(void)
   }
   else if (c == '[')
   {
-    for (*p++ = c; (*p++ = getch()) != ']';)
+    consume_whitespace();
+    for (*p++ = c; isdigit(*p++ = getch());)
       ;
+    ungetch(*p);
+    p--;
+    consume_whitespace();
+    *p++ = getch(); // should be `[`
     *p = '\0';
     return tokentype = BRACKETS;
   }
@@ -111,4 +161,30 @@ int gettoken(void)
   }
   else
     return tokentype = c;
+}
+
+void consume_whitespace()
+{
+  int c;
+  while (isblank(c = getch()))
+    ;
+  ungetch(c);
+}
+
+int peek_token()
+{
+  /* save state */
+  int saved_tokentype = tokentype;
+  char saved_token[MAXTOKEN];
+  strcpy(saved_token, token);
+
+  buffered_gettoken_ret = gettoken();
+  strcpy(buffered_token, token);
+  buffered_tokentype = tokentype;
+
+  /* restore */
+  strcpy(token, saved_token);
+  tokentype = saved_tokentype;
+
+  return buffered_gettoken_ret;
 }
