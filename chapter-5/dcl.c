@@ -30,48 +30,48 @@ void consume_whitespace();
 int peek_token();
 
 /* undcl */
-int main(void)
-{
-  int type;
-  char temp[MAXTOKEN];
-  while (gettoken() != EOF)
-  {
-    strcpy(out, token);
-    while ((type = gettoken()) != '\n')
-      if (type == PARENS || type == BRACKETS)
-        strcat(out, token);
-      else if (type == '*')
-      {
-        int next_token_type = peek_token();
-        sprintf(temp, next_token_type != NAME ? "(*%s)" : "*%s", out);
-        strcpy(out, temp);
-      }
-      else if (type == NAME)
-      {
-        sprintf(temp, "%s %s", token, out);
-        strcpy(out, temp);
-      }
-      else
-        printf("invalid input at %s\n", token);
-    printf("%s\n", out);
-  }
-  return 0;
-}
-
-/* dcl */
 // int main(void)
 // {
+//   int type;
+//   char temp[MAXTOKEN];
 //   while (gettoken() != EOF)
-//   {                          /* 1st token on line */
-//     strcpy(datatype, token); /* is the datatype */
-//     out[0] = '\0';
-//     dcl(); /* parse rest of line */
-//     if (tokentype != '\n')
-//       printf("syntax error\n");
-//     printf("%s: %s %s\n", name, out, datatype);
+//   {
+//     strcpy(out, token);
+//     while ((type = gettoken()) != '\n')
+//       if (type == PARENS || type == BRACKETS)
+//         strcat(out, token);
+//       else if (type == '*')
+//       {
+//         int next_token_type = peek_token();
+//         sprintf(temp, next_token_type != NAME ? "(*%s)" : "*%s", out);
+//         strcpy(out, temp);
+//       }
+//       else if (type == NAME)
+//       {
+//         sprintf(temp, "%s %s", token, out);
+//         strcpy(out, temp);
+//       }
+//       else
+//         printf("invalid input at %s\n", token);
+//     printf("%s\n", out);
 //   }
 //   return 0;
 // }
+
+/* dcl */
+int main(void)
+{
+  while (gettoken() != EOF)
+  {                          /* 1st token on line */
+    strcpy(datatype, token); /* is the datatype */
+    out[0] = '\0';
+    dcl(); /* parse rest of line */
+    if (tokentype != '\n')
+      printf("syntax error\n");
+    printf("%s: %s %s\n", name, out, datatype);
+  }
+  return 0;
+}
 
 /* dcl: parse a declarator */
 void dcl(void)
